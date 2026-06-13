@@ -28,7 +28,20 @@ except:
 
 new_scores = {}
 
+if len(data["response"]) == 0:
+    print("No live matches.")
+    exit()
 for match in data["response"]:
+    league_name = match["league"]["name"]
+
+allowed_leagues = [
+    "World Cup",
+    "World Cup - Qualification",
+    "Friendlies"
+]
+
+if not any(x in league_name for x in allowed_leagues):
+    continue
 
     fixture_id = str(match["fixture"]["id"])
 
@@ -44,10 +57,14 @@ for match in data["response"]:
 
     if old_scores.get(fixture_id) != score:
 
-        message = (
-            f"⚽ SCORE UPDATE\n\n"
-            f"{home} {score} {away}"
-        )
+        minute = match["fixture"]["status"]["elapsed"]
+
+message = (
+    f"⚽ LIVE UPDATE\n\n"
+    f"🏆 {league_name}\n"
+    f"⏱ {minute}'\n\n"
+    f"{home} {home_score}-{away_score} {away}"
+    )
 
         requests.post(
             f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
