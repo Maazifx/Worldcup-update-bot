@@ -1,5 +1,6 @@
 import requests
 import os
+import json
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
 API_KEY = os.environ["API_KEY"]
@@ -15,15 +16,26 @@ response = requests.get(
 
 data = response.json()
 
+try:
+    with open("posted_results.json", "r") as f:
+        posted_results = json.load(f)
+except:
+        posted_results = {}
+
+allowed_leagues = [
+    "World Cup",
+    "World Cup - Qualification",
+    "Friendlies"
+]
+
 for match in data["response"]:
 
-    league_name = match["league"]["name"]
+    fixture_id = str(match["fixture"]["id"])
 
-    allowed_leagues = [
-        "World Cup",
-        "World Cup - Qualification",
-        "Friendlies"
-    ]
+    if fixture_id in posted_results:
+        continue
+
+    league_name = match["league"]["name"]
 
     if not any(x in league_name for x in allowed_leagues):
         continue
@@ -47,3 +59,8 @@ for match in data["response"]:
             "text": message
         }
     )
+
+    posted_results[fixture_id] = True
+
+with open("posted_results.json", "w") as f:
+    json.dump(posted_results, f)
