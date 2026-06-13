@@ -1,5 +1,8 @@
 name: Live Scores
 
+permissions:
+  contents: write
+  
 on:
   schedule:
     - cron: '*/10 * * * *'
