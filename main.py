@@ -1,4 +1,5 @@
 import requests
+import json
 import os
 
 BOT_TOKEN = os.environ["BOT_TOKEN"]
@@ -15,38 +16,42 @@ response = requests.get(
 
 data = response.json()
 
-message = "⚽ LIVE MATCHES\n\n"
+try:
+    with open("last_scores.json", "r") as f:
+        old_scores = json.load(f)
+except:
+    old_scores = {}
 
-data = response.json()
+new_scores = {}
 
-if len(data["response"]) == 0:
-    print("No live matches.")
-    exit()
+for match in data["response"]:
 
-message = "⚽ LIVE MATCHES\n\n"
+    fixture_id = str(match["fixture"]["id"])
 
-for match in data["response"][:5]:
-        home = match["teams"]["home"]["name"]
-        away = match["teams"]["away"]["name"]
+    home = match["teams"]["home"]["name"]
+    away = match["teams"]["away"]["name"]
 
-        home_score = match["goals"]["home"]
-        away_score = match["goals"]["away"]
+    home_score = match["goals"]["home"]
+    away_score = match["goals"]["away"]
 
-        minute = match["fixture"]["status"]["elapsed"]
+    score = f"{home_score}-{away_score}"
 
-        message += (
-            f"{minute}'\n"
-            f"{home} {home_score}-{away_score} {away}\n\n"
+    new_scores[fixture_id] = score
+
+    if old_scores.get(fixture_id) != score:
+
+        message = (
+            f"⚽ SCORE UPDATE\n\n"
+            f"{home} {score} {away}"
         )
 
-url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            data={
+                "chat_id": "@wcupdates2026",
+                "text": message
+            }
+        )
 
-requests.post(
-    url,
-    data={
-        "chat_id": "@wcupdates2026",
-        "text": message
-    }
-)
-
-print("Live scores posted")
+with open("last_scores.json", "w") as f:
+    json.dump(new_scores, f)
