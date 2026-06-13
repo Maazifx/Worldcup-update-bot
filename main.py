@@ -35,7 +35,6 @@ if len(data["response"]) == 0:
     exit()
 
 allowed_leagues = [
-    allowed_leagues = [
     "1. Liga U19"
 ]
 
