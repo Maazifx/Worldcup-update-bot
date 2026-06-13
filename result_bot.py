@@ -15,6 +15,10 @@ response = requests.get(
 )
 
 data = response.json()
+print("Finished matches found:", len(data["response"]))
+
+for match in data["response"][:5]:
+    print(match["league"]["name"])
 
 try:
     with open("posted_results.json", "r") as f:
