@@ -27,7 +27,9 @@ except:
         posted_results = {}
 
 allowed_leagues = [
-    "Damallsvenskan"
+    "World Cup",
+    "World Cup - Qualification",
+    "Friendlies"
 ]
 
 for match in data["response"]:
