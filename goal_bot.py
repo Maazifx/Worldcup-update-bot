@@ -10,11 +10,13 @@ headers = {
 }
 
 response = requests.get(
-    "https://v3.football.api-sports.io/fixtures?live=all",
+    "https://v3.football.api-sports.io/fixtures?date=2026-06-13",
     headers=headers
 )
 
 data = response.json()
+
+print("Matches found:", len(data["response"]))
 
 print("Live matches:", len(data["response"]))
 
