@@ -15,10 +15,6 @@ response = requests.get(
 )
 
 data = response.json()
-print("API Response:")
-print(data)
-
-print(f"Live matches found: {len(data['response'])}")
 
 try:
     with open("last_scores.json", "r") as f:
@@ -31,18 +27,19 @@ new_scores = {}
 if len(data["response"]) == 0:
     print("No live matches.")
     exit()
-    allowed_leagues = [
+
+allowed_leagues = [
     "World Cup",
     "World Cup - Qualification",
     "Friendlies"
-    ]
+]
+
 for match in data["response"]:
+
     league_name = match["league"]["name"]
 
-
-
-if not any(x in league_name for x in allowed_leagues):
-    continue
+    if not any(x in league_name for x in allowed_leagues):
+        continue
 
     fixture_id = str(match["fixture"]["id"])
 
@@ -58,22 +55,22 @@ if not any(x in league_name for x in allowed_leagues):
 
     if old_scores.get(fixture_id) != score:
 
-    minute = match["fixture"]["status"]["elapsed"]
+        minute = match["fixture"]["status"]["elapsed"]
 
-    message = (
-        f"⚽ LIVE UPDATE\n\n"
-        f"🏆 {league_name}\n"
-        f"⏱ {minute}'\n\n"
-        f"{home} {home_score}-{away_score} {away}"
-    )
+        message = (
+            f"⚽ LIVE UPDATE\n\n"
+            f"🏆 {league_name}\n"
+            f"⏱ {minute}'\n\n"
+            f"{home} {home_score}-{away_score} {away}"
+        )
 
-    requests.post(
-        f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-        data={
-            "chat_id": "@wcupdates2026",
-            "text": message
-        }
-    )
+        requests.post(
+            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+            data={
+                "chat_id": "@wcupdates2026",
+                "text": message
+            }
+        )
 
 with open("last_scores.json", "w") as f:
     json.dump(new_scores, f)
