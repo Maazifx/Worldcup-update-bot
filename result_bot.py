@@ -10,12 +10,12 @@ headers = {
 }
 
 response = requests.get(
-    "https://v3.football.api-sports.io/fixtures?status=FT",
+    "https://v3.football.api-sports.io/fixtures?live=all",
     headers=headers
 )
 
 data = response.json()
-print("Finished matches found:", len(data["response"]))
+print("Live matches found:", len(data["response"]))
 
 for match in data["response"][:5]:
     print(match["league"]["name"])
