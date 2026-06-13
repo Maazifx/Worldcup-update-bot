@@ -15,6 +15,10 @@ response = requests.get(
 )
 
 data = response.json()
+print("API Response:")
+print(data)
+
+print(f"Live matches found: {len(data['response'])}")
 
 try:
     with open("last_scores.json", "r") as f:
