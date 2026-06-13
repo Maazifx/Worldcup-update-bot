@@ -16,6 +16,8 @@ response = requests.get(
 
 data = response.json()
 
+print("Live matches:", len(data["response"]))
+
 try:
     with open("posted_goals.json", "r") as f:
         posted_goals = json.load(f)
@@ -39,41 +41,40 @@ for match in data["response"]:
 
     events = events_response.json()["response"]
 
-print(f"{home} vs {away}")
-print("Events:", len(events))
-
-for event in events[:5]:
-    print(event)
+    print(f"{home} vs {away}")
+    print("Events:", len(events))
 
     for event in events:
 
         if event.get("type") != "Goal":
             continue
 
-        event_id = str(event.get("time", {}).get("elapsed", "")) + "_" + str(fixture_id)
-
-        if event_id in posted_goals:
-            continue
-
         scorer = event.get("player", {}).get("name", "Unknown")
         minute = event.get("time", {}).get("elapsed", "?")
         detail = event.get("detail", "")
 
+        event_id = f"{fixture_id}_{minute}_{scorer}_{detail}"
+
+        if event_id in posted_goals:
+            continue
+
         message = (
-            f"⚽ GOAL\n\n"
+            f"⚽ GOAL ALERT\n\n"
             f"{home} {score_home}-{score_away} {away}\n\n"
-            f"Scorer: {scorer}\n"
-            f"Minute: {minute}'\n"
-            f"{detail}"
+            f"👤 Scorer: {scorer}\n"
+            f"⏱ Minute: {minute}'\n"
+            f"📝 {detail}"
         )
 
-        requests.post(
+        telegram_response = requests.post(
             f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
             data={
                 "chat_id": "@wcupdates2026",
                 "text": message
             }
         )
+
+        print("Telegram:", telegram_response.status_code)
 
         posted_goals[event_id] = True
 
