@@ -17,10 +17,15 @@ data = response.json()
 
 message = "⚽ LIVE MATCHES\n\n"
 
+data = response.json()
+
 if len(data["response"]) == 0:
-    message += "No live matches currently."
-else:
-    for match in data["response"][:5]:
+    print("No live matches.")
+    exit()
+
+message = "⚽ LIVE MATCHES\n\n"
+
+for match in data["response"][:5]:
         home = match["teams"]["home"]["name"]
         away = match["teams"]["away"]["name"]
 
