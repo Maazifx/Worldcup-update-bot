@@ -18,7 +18,14 @@ data = response.json()
 
 print("Matches found:", len(data["response"]))
 
-print("Live matches:", len(data["response"]))
+for match in data["response"][:10]:
+    print(
+        match["league"]["name"],
+        "-",
+        match["teams"]["home"]["name"],
+        "vs",
+        match["teams"]["away"]["name"]
+    )
 
 try:
     with open("posted_goals.json", "r") as f:
@@ -46,6 +53,9 @@ for match in data["response"]:
     print(f"{home} vs {away}")
     print("Events:", len(events))
 
+    for event in events[:5]:
+        print(event)
+
     for event in events:
 
         if event.get("type") != "Goal":
@@ -63,9 +73,9 @@ for match in data["response"]:
         message = (
             f"⚽ GOAL ALERT\n\n"
             f"{home} {score_home}-{score_away} {away}\n\n"
-            f"👤 Scorer: {scorer}\n"
+            f"⚽ Scorer: {scorer}\n"
             f"⏱ Minute: {minute}'\n"
-            f"📝 {detail}"
+            f"📋 {detail}"
         )
 
         telegram_response = requests.post(
