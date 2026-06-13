@@ -35,7 +35,9 @@ if len(data["response"]) == 0:
     exit()
 
 allowed_leagues = [
-    "1. Liga U19"
+    "World Cup",
+    "World Cup - Qualification",
+    "Friendlies"
 ]
 
 for match in data["response"]:
