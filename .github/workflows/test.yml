@@ -1,4 +1,4 @@
-name: Test Bot
+name: Live Scores
 
 on:
   workflow_dispatch:
@@ -19,3 +19,4 @@ jobs:
       - run: python main.py
         env:
           BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          API_KEY: ${{ secrets.API_KEY }}
