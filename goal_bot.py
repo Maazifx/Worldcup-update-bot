@@ -16,16 +16,22 @@ response = requests.get(
 
 data = response.json()
 
-print("Matches found:", len(data["response"]))
+print("FULL API RESPONSE:")
+print(data)
 
-for match in data["response"][:10]:
-    print(
-        match["league"]["name"],
-        "-",
-        match["teams"]["home"]["name"],
-        "vs",
-        match["teams"]["away"]["name"]
-    )
+if "response" in data:
+    print("Matches found:", len(data["response"]))
+
+    for match in data["response"][:10]:
+        print(
+            match["league"]["name"],
+            "-",
+            match["teams"]["home"]["name"],
+            "vs",
+            match["teams"]["away"]["name"]
+        )
+else:
+    print("No response field found")
 
 try:
     with open("posted_goals.json", "r") as f:
@@ -33,62 +39,66 @@ try:
 except:
     posted_goals = {}
 
-for match in data["response"]:
+if "response" in data:
 
-    fixture_id = match["fixture"]["id"]
+    for match in data["response"]:
 
-    home = match["teams"]["home"]["name"]
-    away = match["teams"]["away"]["name"]
+        fixture_id = match["fixture"]["id"]
 
-    score_home = match["goals"]["home"]
-    score_away = match["goals"]["away"]
+        home = match["teams"]["home"]["name"]
+        away = match["teams"]["away"]["name"]
 
-    events_response = requests.get(
-        f"https://v3.football.api-sports.io/fixtures/events?fixture={fixture_id}",
-        headers=headers
-    )
+        score_home = match["goals"]["home"]
+        score_away = match["goals"]["away"]
 
-    events = events_response.json()["response"]
-
-    print(f"{home} vs {away}")
-    print("Events:", len(events))
-
-    for event in events[:5]:
-        print(event)
-
-    for event in events:
-
-        if event.get("type") != "Goal":
-            continue
-
-        scorer = event.get("player", {}).get("name", "Unknown")
-        minute = event.get("time", {}).get("elapsed", "?")
-        detail = event.get("detail", "")
-
-        event_id = f"{fixture_id}_{minute}_{scorer}_{detail}"
-
-        if event_id in posted_goals:
-            continue
-
-        message = (
-            f"⚽ GOAL ALERT\n\n"
-            f"{home} {score_home}-{score_away} {away}\n\n"
-            f"⚽ Scorer: {scorer}\n"
-            f"⏱ Minute: {minute}'\n"
-            f"📋 {detail}"
+        events_response = requests.get(
+            f"https://v3.football.api-sports.io/fixtures/events?fixture={fixture_id}",
+            headers=headers
         )
 
-        telegram_response = requests.post(
-            f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
-            data={
-                "chat_id": "@wcupdates2026",
-                "text": message
-            }
-        )
+        events_data = events_response.json()
 
-        print("Telegram:", telegram_response.status_code)
+        if "response" not in events_data:
+            continue
 
-        posted_goals[event_id] = True
+        events = events_data["response"]
+
+        print(f"{home} vs {away}")
+        print("Events:", len(events))
+
+        for event in events:
+
+            if event.get("type") != "Goal":
+                continue
+
+            scorer = event.get("player", {}).get("name", "Unknown")
+            minute = event.get("time", {}).get("elapsed", "?")
+            detail = event.get("detail", "")
+
+            event_id = f"{fixture_id}_{minute}_{scorer}_{detail}"
+
+            if event_id in posted_goals:
+                continue
+
+            message = (
+                f"⚽ GOAL ALERT\n\n"
+                f"{home} {score_home}-{score_away} {away}\n\n"
+                f"⚽ Scorer: {scorer}\n"
+                f"⏱ Minute: {minute}'\n"
+                f"📋 {detail}"
+            )
+
+            telegram_response = requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                data={
+                    "chat_id": "@wcupdates2026",
+                    "text": message
+                }
+            )
+
+            print("Telegram status:", telegram_response.status_code)
+
+            posted_goals[event_id] = True
 
 with open("posted_goals.json", "w") as f:
     json.dump(posted_goals, f)
