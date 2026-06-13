@@ -38,6 +38,11 @@ for match in data["response"]:
     )
 
     events = events_response.json()["response"]
+    print(f"{home} vs {away}")
+print("Events:", len(events))
+
+for event in events[:5]:
+    print(event)
 
     for event in events:
 
